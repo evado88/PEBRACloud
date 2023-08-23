@@ -1,13 +1,21 @@
 from flask import Flask
 
-from test import test
-from user import user
+#link database and api files
+from api import api
+from db import db
 
+#init flask app
 app = Flask(__name__)
 
-app.register_blueprint(test)
-app.register_blueprint(user)
+#register blueprints
+app.register_blueprint(api)
+app.register_blueprint(db)
 
+
+
+
+
+#root path
 @app.route("/")
 def hello():
-    return "<h1>Main File!</h1>"
+    return {'app':'Twyshe App Server', 'version': 1}
