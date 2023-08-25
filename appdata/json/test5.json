@@ -1,0 +1,21 @@
+{
+ "events": [],
+ "analytics":[{"username": "test5", "description": "Main", "startDate": "2023-08-17", "endDate": "2023-08-17", "duration": 125, "result": "Inactive", "subject": "null"}
+,
+{"username": "test5", "description": "Lock:", "startDate": "2023-08-17", "endDate": "2023-08-17", "duration": 18, "result": "Unlocked", "subject": "test5"}
+,
+{"username": "test5", "description": "Lock:", "startDate": "2023-08-17", "endDate": "2023-08-17", "duration": 18, "result": "Unlocked", "subject": "test5"}
+,
+{"username": "test5", "description": "Lock:", "startDate": "2023-08-17", "endDate": "2023-08-17", "duration": 5, "result": "Unlocked", "subject": "test5"}
+,
+{"username": "test5", "description": "Lock:", "startDate": "2023-08-17", "endDate": "2023-08-17", "duration": 10, "result": "Unlocked", "subject": "test5"}
+,
+{"username": "test5", "description": "Lock:", "startDate": "2023-08-24", "endDate": "2023-08-24", "duration": 7, "result": "Unlocked", "subject": "test5"}
+],
+"users":[{"username": "test5", "createDate": "2023-08-17", "firstName": "test5", "lastName": "test5", "phoneNumber": "+266-977111111", "phoneNumberUploadRequired": false, "isActive": true, "deactivatedDate": "null"}
+],
+ "patients":[],
+"followups":[],
+  "appointments":[],
+"medicalRefils":[]
+ }

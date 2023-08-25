@@ -1,0 +1,10 @@
+{
+ "events": [],
+ "analytics":[],
+"users":[{"username": "test9", "createDate": "2023-08-24", "firstName": "test", "lastName": "test", "phoneNumber": "+266-977777777", "phoneNumberUploadRequired": false, "isActive": true, "deactivatedDate": "null"}
+],
+ "patients":[],
+"followups":[],
+  "appointments":[],
+"medicalRefils":[]
+ }
