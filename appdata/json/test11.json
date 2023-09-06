@@ -1,6 +1,15 @@
 {
  "events": [],
- "analytics":[],
+ "analytics":[{"username": "test11", "description": "Lock:", "startDate": "2023-08-24", "endDate": "2023-08-24", "duration": 9, "result": "Unlocked", "subject": "test11"}
+,
+{"username": "test11", "description": "Lock:", "startDate": "2023-08-24", "endDate": "2023-08-24", "duration": 6, "result": "Unlocked", "subject": "test11"}
+,
+{"username": "test11", "description": "Main", "startDate": "2023-08-24", "endDate": "2023-08-24", "duration": 2841, "result": "Inactive", "subject": "test11"}
+,
+{"username": "test11", "description": "Lock:", "startDate": "2023-08-29", "endDate": "2023-08-29", "duration": 7, "result": "Unlocked", "subject": "test11"}
+,
+{"username": "test11", "description": "Lock:", "startDate": "2023-08-31", "endDate": "2023-08-31", "duration": 11, "result": "Unlocked", "subject": "test11"}
+],
 "users":[{"username": "test11", "createDate": "2023-08-24", "firstName": "test", "lastName": "test", "phoneNumber": "+266-977777777", "phoneNumberUploadRequired": false, "isActive": true, "deactivatedDate": "null"}
 ],
  "patients":[],

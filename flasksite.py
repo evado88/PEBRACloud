@@ -7,16 +7,25 @@ from werkzeug.utils import secure_filename
 import assist
 
 #link database and api files
+from core import core
 from api import api
 from db import db
+
+from mlist import mlist
+from mdelete import mdelete
+from mupdate import mupdate
 
 #init flask app
 app = Flask(__name__)
 
 #register blueprints
+app.register_blueprint(core)
 app.register_blueprint(api)
 app.register_blueprint(db)
 
+app.register_blueprint(mlist)
+app.register_blueprint(mdelete)
+app.register_blueprint(mupdate)
 
 #root path
 @app.route("/")

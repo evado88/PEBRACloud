@@ -1,14 +1,18 @@
 import os
 import hashlib
+
+DB_NAME = "twyshe.db"
+
 # default parameters, can be overwritten by command line arguments
 PORT = 80
 UPLOAD_FOLDER = 'C:\\Repo\\Python\\PEBRACloud\\appdata'
-#UPLOAD_FOLDER = '/home/nkoleevans/mysite/PEBRAcloud_files'
+# UPLOAD_FOLDER = '/home/nkoleevans/mysite/PEBRAcloud_files'
 
 # fixed parameters
 ALLOWED_EXTENSIONS = {'txt', 'db', 'xlsx'}
 ALLOWED_FOLDERS = {'data', 'backups', 'passwords'}
-ALLOWED_FEATURES = {'events', 'analytics', 'users','patients', 'followups', 'appointments', 'medicalRefils'}
+ALLOWED_FEATURES = {'events', 'analytics', 'users',
+                    'patients', 'followups', 'appointments', 'medicalRefils'}
 # TODO: generate secure key, http://flask.pocoo.org/docs/quickstart/#sessions
 SECRET_KEY = '80db2fc8b86d89ff7fe871b0481a35880ff9c5bf1acc1cd4686b04fd652fba59'
 # TODO: generate secure auth token
@@ -17,21 +21,24 @@ AUTH_TOKEN = '64afba44c23870aae335b53498d1eda92b86a43a4376e4839f5759960d2c3016'
 # create all folders
 for folder in ALLOWED_FOLDERS:
     os.makedirs(os.path.join(UPLOAD_FOLDER, folder), exist_ok=True)
-    os.makedirs(os.path.join(UPLOAD_FOLDER, 'archive', '%s-archive' % folder), exist_ok=True)
+    os.makedirs(os.path.join(UPLOAD_FOLDER, 'archive',
+                '%s-archive' % folder), exist_ok=True)
+
 
 def getMD5(value):
     return hashlib.md5(value.encode('utf-8')).hexdigest()
+
 
 def getList(rows, columns):
     items = []
 
     for row in rows:
 
-        item={}
-        index=0
+        item = {}
+        index = 0
 
         for col in columns:
-            item[col]=row[index]
+            item[col] = row[index]
             index += 1
 
         items.append(item)
@@ -56,6 +63,7 @@ def allowed_file(filename):
 def allowed_folder(foldername):
     return foldername.lower() in ALLOWED_FOLDERS
 
+
 def allowed_feature(feature):
     return feature in ALLOWED_FEATURES
 
@@ -75,4 +83,3 @@ def move_to_archive(folder, filename):
         archive_path = os.path.join(UPLOAD_FOLDER, 'archive', '%s-archive' % folder,
                                     '%s_%s.%s' % (filename_no_ext, file_version, file_ext))
     os.rename(source_path, archive_path)
-
