@@ -20,7 +20,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_users (
           user_id INTEGER PRIMARY KEY,
-          user_username TEXT NOT NULL,
+          user_username TEXT,
           user_fname TEXT,
           user_lname TEXT,
           user_phone TEXT,
@@ -39,7 +39,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_peer_navigators (
           peer_id INTEGER PRIMARY KEY,
-          peer_username TEXT NOT NULL,
+          peer_username TEXT,
           peer_fname TEXT,
           peer_lname TEXT,
           peer_phone TEXT,
@@ -127,7 +127,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_resources (
           resource_id INTEGER PRIMARY KEY,
-          resource_name TEXT NOT NULL,
+          resource_name TEXT,
           resource_description TEXT,
           resource_url TEXT,
           resource_thumbnailUrl TEXT,
@@ -142,7 +142,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_countries (
           country_id INTEGER PRIMARY KEY,
-          country_name TEXT NOT NULL,
+          country_name TEXT,
           country_code TEXT,
           country_thumbnailUrl TEXT,
           country_status INTEGER,
@@ -157,7 +157,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_colors (
           color_id INTEGER PRIMARY KEY,
-          color_name TEXT NOT NULL,
+          color_name TEXT,
           color_code,
           color_thumbnailUrl,
           color_status INTEGER,
