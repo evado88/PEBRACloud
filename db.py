@@ -37,6 +37,38 @@ def initializeDb():
         """)
     
     cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_logins (
+          login_id INTEGER PRIMARY KEY,
+          login_username TEXT,
+          login_source TEXT,
+          login_date TEXT
+        );
+        """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_logs (
+          log_id INTEGER PRIMARY KEY,
+          log_username TEXT, 
+          log_title TEXT,
+          log_action TEXT,
+          log_description TEXT,
+          log_exception TEXT,
+          log_date TEXT
+        );
+        """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_audits (
+          audit_id INTEGER PRIMARY KEY,
+          audit_username TEXT,
+          audit_title TEXT,
+          audit_action TEXT,
+          audit_description TEXT,
+          audit_date TEXT
+        );
+        """)
+    
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS app_peer_navigators (
           peer_id INTEGER PRIMARY KEY,
           peer_username TEXT,
@@ -99,7 +131,7 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_facilities (
           facility_id INTEGER PRIMARY KEY,
-          facility_name TEXT NOT NULL,
+          facility_name TEXT,
           facility_address TEXT,
           facility_tollfree TEXT,
           facility_whatsapp TEXT,
@@ -152,7 +184,20 @@ def initializeDb():
           country_lastupdateuser TEXT
         );
         """)
-
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_notifications (
+          notification_id INTEGER PRIMARY KEY,
+          notification_type TEXT,
+          notification_title TEXT,
+          notification_body TEXT,
+          notification_description TEXT,
+          notification_createuser TEXT,
+          notification_createdate TEXT,
+          notification_lastupdatedate TEXT,
+          notification_lastupdateuser TEXT
+        );
+        """)
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_colors (

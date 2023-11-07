@@ -30,6 +30,38 @@ def deleteItem(title, uid, query):
 
     return resp
 
+@mdelete.route('/user/delete', methods=['POST'])
+def deleteUser():
+
+    uid = request.form.get('uid')
+    query = '''DELETE FROM app_users WHERE user_id=?'''
+        
+    return deleteItem('user', uid, query)
+
+@mdelete.route('/facility/delete', methods=['POST'])
+def deleteFacility():
+
+    uid = request.form.get('uid')
+    query = '''DELETE FROM app_facilities WHERE facility_id=?'''
+        
+    return deleteItem('facility', uid, query)
+
+@mdelete.route('/resource/delete', methods=['POST'])
+def deleteResource():
+
+    uid = request.form.get('uid')
+    query = '''DELETE FROM app_resources WHERE resource_id=?'''
+        
+    return deleteItem('resource', uid, query)
+
+@mdelete.route('/country/delete', methods=['POST'])
+def deleteCountry():
+
+    uid = request.form.get('uid')
+    query = '''DELETE FROM app_countries WHERE country_id=?'''
+        
+    return deleteItem('country', uid, query)
+
 @mdelete.route('/color/delete', methods=['POST'])
 def deleteColor():
 
@@ -37,3 +69,11 @@ def deleteColor():
     query = '''DELETE FROM app_colors WHERE color_id=?'''
         
     return deleteItem('color', uid, query)
+
+@mdelete.route('/notification/delete', methods=['POST'])
+def deleteNotification():
+
+    uid = request.form.get('uid')
+    query = '''DELETE FROM app_notifications WHERE notification_id=?'''
+        
+    return deleteItem('notification', uid, query)

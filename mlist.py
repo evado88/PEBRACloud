@@ -68,6 +68,26 @@ def countryList():
     return loadList("SELECT *, CASE WHEN country_status=1 THEN 'Active' ELSE 'Disabled' END AS c_status FROM app_countries")
 
 @mlist.route('/color/list', methods=['GET'])
-def colorlist():
+def colorList():
 
     return loadList("SELECT *, CASE WHEN color_status=1 THEN 'Active' ELSE 'Disabled' END AS c_status FROM app_colors")
+
+@mlist.route('/notification/list', methods=['GET'])
+def notificatioList():
+
+    return loadList("SELECT * FROM app_notifications")
+
+@mlist.route('/login/list', methods=['GET'])
+def loginList():
+
+    return loadList("SELECT * FROM app_logins ORDER BY login_id DESC")
+
+@mlist.route('/audit/list', methods=['GET'])
+def auditList():
+
+    return loadList("SELECT * FROM app_audits ORDER BY audit_id DESC")
+
+@mlist.route('/log/list', methods=['GET'])
+def logList():
+
+    return loadList("SELECT * FROM app_logs ORDER BY log_id DESC")

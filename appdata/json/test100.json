@@ -1,0 +1,55 @@
+{
+ "events": [],
+ "analytics":[{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 15, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 37, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 13, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 27, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 7, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 41, "result": "Saved", "subject": "22222"}
+,
+{"username": "test100", "description": "Patient", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 854, "result": "null", "subject": "null"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 18, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Patient", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 4, "result": "null", "subject": "null"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 15, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 15, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Patient", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 3, "result": "null", "subject": "null"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 5, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 3, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 9, "result": "Unlocked", "subject": "test100"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 28, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 16, "result": "Cancel", "subject": "22222"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 19, "result": "Saved", "subject": "22222"}
+,
+{"username": "test100", "description": "Add Followup", "startDate": "2023-11-06", "endDate": "2023-11-06", "duration": 19, "result": "Saved", "subject": "22222"}
+,
+{"username": "test100", "description": "Lock:", "startDate": "2023-11-07", "endDate": "2023-11-07", "duration": 79, "result": "Unlocked", "subject": "test100"}
+],
+"users":[{"username": "test100", "createDate": "2023-11-05", "firstName": "Test", "lastName": "Only", "phoneNumber": "+266-977123456", "phoneNumberUploadRequired": false, "isActive": true, "deactivatedDate": "null"}
+],
+ "patients":[{"username": "test100", "studyNo": "22222", "enrollDate": "null", "birthDate": "2002-09-02", "consentGiven": false, "noConsentReason": "Other...", "gender": "UNZA Hostel", "sexualOrientation": "TwySHE Messenger App", "phoneAvailability": "Used only by the participant and can receive confidential information", "phoneNumber": "260977223344", "contactFrequency": "Weekly"}
+],
+"followups":[{"username": "test100", "studyNo": "22222", "createdate": "2023-11-06"}"}
+,
+{"username": "test100", "studyNo": "22222", "createdate": "2023-11-06"}"}
+,
+{"username": "test100", "studyNo": "22222", "createdate": "2023-11-06"}"}
+],
+  "appointments":[],
+"medicalRefils":[]
+ }

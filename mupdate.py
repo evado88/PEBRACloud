@@ -21,6 +21,14 @@ def getItemId(title, id):
         query = "SELECT *, CASE WHEN country_status=1 THEN 'Active' ELSE 'Disabled' END AS c_status FROM app_countries WHERE country_id=?"
     elif title=='color':
         query = "SELECT *, CASE WHEN color_status=1 THEN 'Active' ELSE 'Disabled' END AS c_status FROM app_colors WHERE color_id=?"
+    elif title=='notification':
+        query = "SELECT * FROM app_notifications WHERE notification_id=?"
+    elif title=='login':
+        query = "SELECT * FROM app_logins WHERE login_id=?"
+    elif title=='audit':
+        query = "SELECT * FROM app_audits WHERE audit_id=?"
+    elif title=='log':
+        query = "SELECT * FROM app_logs WHERE log_id=?"
     else:
         return {'succeeded': False, 'items': [], 'message': f"The specified {title} is not valid"}
 
@@ -146,6 +154,17 @@ def colorId(id):
 
    return resp
 
+@mupdate.route('/notification/id/<id>', methods=['GET'])
+def notificationId(id):
+
+   rs = getItemId('notification', id)
+
+   resp = Response(json.dumps(rs))
+
+   resp.headers['Content-Type'] = 'application/json'
+   resp.headers['Access-Control-Allow-Origin'] = '*'
+
+   return resp
 
 @mupdate.route('/user/update', methods=['POST'])
 def updateUser():
@@ -183,11 +202,11 @@ def updateUser():
         uid = cur.lastrowid
     else:
         #update the user
-        query = '''UPDATE app_users SET user_username=?, user_fname=?, user_lname=?, user_phone=?,
+        query = '''UPDATE app_users SET user_fname=?, user_lname=?, user_phone=?,
                    user_email=?, user_role=?, user_status=?, 
                    user_lastupdatedate=?, user_lastupdateuser=? WHERE user_id=?'''
         
-        cur.execute(query, [uname, ufname, ulname, uphone, 
+        cur.execute(query, [ufname, ulname, uphone, 
                             uemail, urole, ustatus, 
                             now, user, uid])
 
@@ -505,3 +524,206 @@ def updateColor():
 
     return resp
 
+@mupdate.route('/notification/update', methods=['POST'])
+def updateNotification():
+
+    utype = request.form.get('utype')
+    utitle = request.form.get('utitle')
+    ubody = request.form.get('ubody')
+    udescription = request.form.get('udescription')
+    uid = request.form.get('uid')
+    user = request.form.get('user')
+    
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    
+    if int(uid) == 0:
+        #add a new country
+        query = '''INSERT INTO app_notifications (notification_type, notification_title, notification_body, notification_description,
+                   notification_createuser, notification_createdate, notification_lastupdatedate, notification_lastupdateuser) 
+                   VALUES (?, ?, ?, ?, 
+                           ?, ?, ?, ?)'''
+        cur.execute(query, [utype, utitle, ubody, udescription,
+                            user, now, now, user])
+
+        #set id of inserted record
+        uid = cur.lastrowid
+    else:
+        #update the country
+        query = '''UPDATE app_notifications SET notification_type=?, notification_title=?, notification_body=?, notification_description=?,
+                   notification_lastupdatedate=?, notification_lastupdateuser=? WHERE notification_id=?'''
+        
+        cur.execute(query, [utype, utitle, ubody, udescription, 
+                            now, user, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('notification', uid)
+    else:
+        rs = {'succeeded': False, 'items': None, 'message': f'Unable to update the specified record'}
+        
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
+@mupdate.route('/login/update', methods=['POST'])
+def updateLogin():
+
+    uusername = request.form.get('uusername')
+    usource = request.form.get('usource')
+    uid = request.form.get('uid')
+    
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    if int(uid) == 0:
+        #add a new color
+        query = '''INSERT INTO app_logins(login_username, login_source, login_date) 
+                   VALUES (?, ?, ?)'''
+        cur.execute(query, [uusername, usource, now])
+
+        #set id of inserted record
+        uid = cur.lastrowid
+    else:
+        #update the color
+        query = '''UPDATE app_logins SET login_username=?, login_source=?, login_date=? WHERE login_id=?'''
+        
+        cur.execute(query, [uusername, usource, now, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('login', uid)
+    else:
+        rs = {'succeeded': False, 'items': None, 'message': f'Unable to update the specified record'}
+        
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
+@mupdate.route('/audit/update', methods=['POST'])
+def updateAudit():
+
+    uusername = request.form.get('uusername')
+    utitle = request.form.get('utitle')
+    uaction = request.form.get('uaction')
+    udescription = request.form.get('udescription')
+    uid = request.form.get('uid')
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    if int(uid) == 0:
+        #add a new color
+        query = '''INSERT INTO app_audits(audit_username, audit_title, audit_action, 
+                                          audit_description, audit_date) 
+                   VALUES (?, ?, ?, 
+                           ?, ?)'''
+        cur.execute(query, [uusername, utitle, uaction, 
+                            udescription, now])
+
+        #set id of inserted record
+        uid = cur.lastrowid
+    else:
+        #update the color
+        query = '''UPDATE app_audits SET audit_username=?, audit_title=?, audit_action=?, 
+                   audit_description=?, audit_date=? WHERE audit_id=?'''
+        
+        cur.execute(query, [uusername, utitle, uaction, 
+                            udescription, now, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('audit', uid)
+    else:
+        rs = {'succeeded': False, 'items': None, 'message': f'Unable to update the specified record'}
+        
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
+@mupdate.route('/log/update', methods=['POST'])
+def updateLog():
+
+    uusername = request.form.get('uusername')
+    utitle = request.form.get('utitle')
+    uaction = request.form.get('uaction')
+    udescription = request.form.get('udescription')
+    uexception = request.form.get('uexception')
+    uid = request.form.get('uid')
+    
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    if int(uid) == 0:
+        #add a new color
+        query = '''INSERT INTO app_logs(log_username, log_title, log_action, 
+                                        log_description, log_exception, log_date) 
+                   VALUES (?, ?, ?, 
+                           ?, ?, ?)'''
+        cur.execute(query, [uusername, utitle, uaction, 
+                            udescription, uexception, now])
+
+        #set id of inserted record
+        uid = cur.lastrowid
+    else:
+        #update the color
+        query = '''UPDATE app_logs SET log_username=?, log_title=?, log_action=?, 
+                   log_description=?, log_exception=?, log_date=? WHERE log_id=?'''
+        
+        cur.execute(query, [uusername, utitle, uaction, 
+                            udescription, uexception, now, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('log', uid)
+    else:
+        rs = {'succeeded': False, 'items': None, 'message': f'Unable to update the specified record'}
+        
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
