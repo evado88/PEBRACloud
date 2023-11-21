@@ -27,29 +27,37 @@ def loadList(query):
 
 @mlist.route('/user/list', methods=['GET'])
 def userList():
-    return loadList("SELECT *, CASE WHEN user_status=1 THEN 'Active' ELSE 'Disabled' END AS u_status FROM app_users")
+    return loadList('''SELECT *, CASE WHEN user_status=1 THEN 'Active' ELSE 'Disabled' END AS u_status FROM app_users''')
 
+@mlist.route('/peer-upload/list', methods=['GET'])
+def peerUploadList():
+
+    return loadList("SELECT *, CASE WHEN upload_status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_uploads")
 
 @mlist.route('/peer-navigator/list', methods=['GET'])
 def peerList():
 
-    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators")
+    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators pn 
+                       LEFT JOIN app_peer_uploads up ON pn.upload=up.upload_id""")
 
 @mlist.route('/participant/list', methods=['GET'])
 def participantList():
 
-    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants")
+    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants ps 
+                       LEFT JOIN app_peer_uploads up ON ps.upload=up.upload_id""")
 
 @mlist.route('/followup/list', methods=['GET'])
 def followupList():
 
-    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups")
+    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups fu 
+                       LEFT JOIN app_peer_uploads up ON fu.upload=up.upload_id""")
 
 
 @mlist.route('/analytic/list', methods=['GET'])
 def analyticList():
 
-    return loadList("SELECT * FROM app_analytics")
+    return loadList("""SELECT * FROM app_analytics al
+                       LEFT JOIN app_peer_uploads up ON al.upload=up.upload_id""")
 
 
 @mlist.route('/facility/list', methods=['GET'])

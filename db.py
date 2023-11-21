@@ -18,6 +18,15 @@ def initializeDb():
     cur = con.cursor()
 
     cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_peer_uploads (
+          upload_id INTEGER PRIMARY KEY,
+          upload_username TEXT NULL,
+          upload_status INTEGER NULL,
+          upload_date TEXT NULL
+        );
+        """)
+    
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS app_users (
           user_id INTEGER PRIMARY KEY,
           user_username TEXT NULL,
@@ -74,6 +83,7 @@ def initializeDb():
           status INTEGER NULL,
           parent INTEGER NULL,    
           username TEXT NULL,
+          upload INTEGER NULL,
           phone_number TEXT NULL,    
           first_name TEXT NULL,
           last_name TEXT NULL,
@@ -88,8 +98,10 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_participants (
           id INTEGER PRIMARY KEY, -- utility
-          status INTEGER NULL, 
+          status INTEGER NULL,
           parent INTEGER NULL,    
+          username TEXT NULL,  
+          upload INTEGER NULL,
           enrollment_date TEXT NULL,
           study_number TEXT NULL, --personal
           names TEXT NULL,
@@ -185,8 +197,10 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_followups (
           id INTEGER PRIMARY KEY,
-          parent INTEGER NULL,      
-          status INTEGER NULL, 
+          status INTEGER NULL,
+          parent INTEGER NULL,    
+          username TEXT NULL,
+          upload INTEGER NULL,
           created_date TEXT NULL,
           next_date TEXT NULL,
           art_number TEXT NULL,
@@ -240,6 +254,9 @@ def initializeDb():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_analytics (
           id INTEGER PRIMARY KEY,
+          status INTEGER NULL,
+          username TEXT NULL,
+          upload INTEGER NULL,
           type INTEGER NULL,
           start_date TEXT NULL,
           end_date TEXT NULL,
@@ -373,7 +390,14 @@ def dropDatabaseTable():
 
          cur = con.cursor()
     
-         cur.execute(f"DROP TABLE {table}")
+         if table == 'all':
+             
+             items = ['app_participants', 'app_followups', 'app_peer_navigators', 'app_analytics', 'app_peer_uploads']
+             
+             for item in items:
+               cur.execute(f"DROP TABLE {item}")
+         else:
+             cur.execute(f"DROP TABLE {table}")
         
          con.close()
 

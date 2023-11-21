@@ -7,6 +7,7 @@ import string
 import random
 import assist
 import sqlite3
+import datetime as dt
 
 core = Blueprint('core', __name__)
 
@@ -44,13 +45,9 @@ def upload_file(folder):
         return 'Upload successful', 201
 
 
-def process_json_data(data, type):
+def process_json_data(data, type, username, upload):
 
-    columns = ''
-    placeHolder = ''
-
-    values = []
-
+    #check which table to update
     table = ''
 
     if type == 'users':
@@ -65,9 +62,32 @@ def process_json_data(data, type):
     else:
         table = 'app_participants'
 
-    for followup in data[type]:
+    con = sqlite3.connect(assist.DB_NAME)
+    cur = con.cursor()
 
-        for field in followup:
+    rs = None
+
+    #loop through the list of items
+    for item in data[type]:
+
+        columns = ''
+        placeHolder = ''
+
+        values = []
+
+        item['username']=username
+        item['upload']=upload
+        
+        #analytics do not use parents or status
+        if type != 'analytics':
+            item['status']=1
+            item['parent']=item['id']
+
+
+            #mark the other items as old
+            cur.execute(f"UPDATE {table} SET status=2 WHERE username=? AND status=1", [username])
+
+        for field in item:
 
             if field != 'id':
                 if len(values) != 0:
@@ -76,26 +96,24 @@ def process_json_data(data, type):
 
                 columns += field
                 placeHolder += '?'
-                values.append(followup[field])
+                values.append(item[field])
 
-    query = f'INSERT INTO {table} ({columns}) VALUES ({placeHolder})'
+        query = f'INSERT INTO {table} ({columns}) VALUES ({placeHolder})'
+        cur.execute(query, values)
 
-    con = sqlite3.connect(assist.DB_NAME)
-    cur = con.cursor()
+        rows = cur.rowcount
 
-    cur.execute(query, values)
+        if rows != 0:
+            rs = {'succeeded': True, 'items': None,
+                    'message': f'The record has been successfully inserted'}
+        else:
+            rs = {'succeeded': False, 'items': None,
+                    'message': f'Unable to insert the specified record'}
+            break
 
-    rows = cur.rowcount
-
+    #close the database and return the result
     con.commit()
     con.close()
-
-    if rows != 0:
-        rs = {'succeeded': True, 'items': None,
-              'message': f'The record has been successfully inserted'}
-    else:
-        rs = {'succeeded': False, 'items': None,
-              'message': f'Unable to insert the specified record'}
 
     return rs
 
@@ -143,8 +161,32 @@ def upload_json():
     rsFeature = None
     success = True
 
+    con = sqlite3.connect(assist.DB_NAME)
+    cur = con.cursor()
+
+    #mark the other items as old
+    cur.execute(f"UPDATE app_peer_uploads SET upload_status=2 WHERE upload_username=? AND upload_status=1", [username])
+     
+    #insert main uplaod for user
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    #add a new user
+    query = '''INSERT INTO app_peer_uploads(upload_username, upload_status, upload_date) 
+               VALUES (?, ?, ?)'''
+    
+    cur.execute(query, [username, 1, now])
+
+    #set id of inserted record
+    upload_id = cur.lastrowid
+
+    #stop using database
+    con.commit()
+    con.close()
+
+    #process each feature in the json file
     for feature in items:
-        rsFeature = process_json_data(data, feature)
+        rsFeature = process_json_data(data, feature, username, upload_id)
         
         if not rsFeature['succeeded']:
            break
