@@ -33,23 +33,23 @@ def userList():
 @mlist.route('/peer-navigator/list', methods=['GET'])
 def peerList():
 
-    return loadList("SELECT *, CASE WHEN peer_status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators")
+    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators")
 
 @mlist.route('/participant/list', methods=['GET'])
 def participantList():
 
-    return loadList("SELECT *, CASE WHEN participant_status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants")
+    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants")
 
 @mlist.route('/followup/list', methods=['GET'])
 def followupList():
 
-    return loadList("SELECT *, CASE WHEN followup_status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups")
+    return loadList("SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups")
 
 
 @mlist.route('/analytic/list', methods=['GET'])
 def analyticList():
 
-    return loadList("SELECT *, CASE WHEN analytic_status=1 THEN 'Active' ELSE 'Disabled' END AS a_status FROM app_analytics")
+    return loadList("SELECT * FROM app_analytics")
 
 
 @mlist.route('/facility/list', methods=['GET'])

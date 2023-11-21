@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import string
 import random
 import assist
+import sqlite3
 
 core = Blueprint('core', __name__)
 
@@ -43,40 +44,125 @@ def upload_file(folder):
         return 'Upload successful', 201
 
 
+def process_json_data(data, type):
+
+    columns = ''
+    placeHolder = ''
+
+    values = []
+
+    table = ''
+
+    if type == 'users':
+        table = 'app_peer_navigators'
+
+    elif type == 'followups':
+        table = 'app_followups'
+
+    elif type == 'analytics':
+        table = 'app_analytics'
+
+    else:
+        table = 'app_participants'
+
+    for followup in data[type]:
+
+        for field in followup:
+
+            if field != 'id':
+                if len(values) != 0:
+                    columns += ','
+                    placeHolder += ','
+
+                columns += field
+                placeHolder += '?'
+                values.append(followup[field])
+
+    query = f'INSERT INTO {table} ({columns}) VALUES ({placeHolder})'
+
+    con = sqlite3.connect(assist.DB_NAME)
+    cur = con.cursor()
+
+    cur.execute(query, values)
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = {'succeeded': True, 'items': None,
+              'message': f'The record has been successfully inserted'}
+    else:
+        rs = {'succeeded': False, 'items': None,
+              'message': f'Unable to insert the specified record'}
+
+    return rs
+
+
 @core.route('/upload/json', methods=['POST'])
 def upload_json():
-    """
-    Uploads a json file
-    """
+    
+    #Uploads a json file
     if not assist.check_token(request):
-        print('Auth error')
-        return 'Auth error', 401
+        rs = {'succeeded': False, 'items': None, 'message': 'The token has not been specified or is incorrect'}
+
+        resp = Response(json.dumps(rs))
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+
+        return resp
 
     # check if the post request has required data
-    if 'json' not in request.form:
-        print('No json part')
-        return 'No json part', 400
-    if 'username' not in request.form:
-        print('No username part')
-        return 'No username part', 400
+    if 'json' not in request.form or 'username' not in request.form:
+        rs = {'succeeded': False, 'items': None, 'message': 'The required parameters for the user or json data have not been provided'}
 
-    json = request.form['json']
+        resp = Response(json.dumps(rs))
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+
+        return resp
+
+    #get the parameters provided
+    jsonData = request.form['json']
     username = request.form['username']
 
+    #write the file to the file system
     target_path = os.path.join(
         assist.UPLOAD_FOLDER, 'json', username + '.json')
 
     f = open(target_path, "w")
-    f.write(json)
+    f.write(jsonData)
     f.close()
 
-    return 'json successful', 201
+    #store the json data in the database
+    data = json.loads(jsonData)
 
+    items = ['patients', 'followups', 'users', 'analytics']
+     
+    rsFeature = None
+    success = True
 
-@core.route('/testdownload', methods=['GET'])
-def testdownload():
-    return send_from_directory('PEBRAcloud_files/passwords', 'maria.txt')
+    for feature in items:
+        rsFeature = process_json_data(data, feature)
+        
+        if not rsFeature['succeeded']:
+           break
+            
+    if success:
 
+        rs = {'succeeded': True, 'items': None, 'message': 'The JSON file has been uploaded and processed successfully'}
+
+        resp = Response(json.dumps(rs))
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+
+        return resp
+    else:
+        resp = Response(json.dumps(rsFeature))
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -89,13 +175,13 @@ def testrandom():
 
 @core.route('/download/<folder>/<username>/<random>', methods=['GET'])
 def download(folder, username, random):
-    """
-    Downloads the file with matching username from the given folder.
 
-    if not check_token(request):
+    # Downloads the file with matching username from the given folder.
+
+    if not assist.check_token(request):
         print('Auth error')
         return 'Auth error', 401
-    """
+
     if not assist.allowed_folder(folder):
         print('Bad folder')
         return 'Bad folder', 400
@@ -140,7 +226,6 @@ def exists(folder, username):
     return resp
 
 
-
 @core.route('/archive/<folder>/<username>', methods=['POST'])
 def archive_file(folder, username):
     """
@@ -163,5 +248,3 @@ def archive_file(folder, username):
         return 'File not found', 400
     assist.move_to_archive(folder, filename)
     return 'Archive successful', 201
-
-
