@@ -25,32 +25,56 @@ def loadList(query):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
+
 @mlist.route('/user/list', methods=['GET'])
 def userList():
     return loadList('''SELECT *, CASE WHEN user_status=1 THEN 'Active' ELSE 'Disabled' END AS u_status FROM app_users''')
+
+@mlist.route('/sent-resource/list', methods=['GET'])
+def sentResourceList():
+
+    return loadList("SELECT *, CASE WHEN status=1 THEN 'Pending' ELSE 'Processed' END AS p_status FROM app_sent_resources")
 
 @mlist.route('/peer-upload/list', methods=['GET'])
 def peerUploadList():
 
     return loadList("SELECT *, CASE WHEN upload_status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_uploads")
 
-@mlist.route('/peer-navigator/list', methods=['GET'])
-def peerList():
+def getListWhere(type, id, field):
 
-    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators pn 
-                       LEFT JOIN app_peer_uploads up ON pn.upload=up.upload_id""")
+    if int(type) == 1:
+        return 'WHERE upload_status=1'
+    elif int(type) == 2:
+        return f"WHERE {field}='{id}' AND status=2"
+    else:
+        return ''
 
-@mlist.route('/participant/list', methods=['GET'])
-def participantList():
+@mlist.route('/peer-navigator/list/<type>/<id>/<field>', methods=['GET'])
+def peerList(type, id, field):
 
-    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants ps 
-                       LEFT JOIN app_peer_uploads up ON ps.upload=up.upload_id""")
+    return loadList(f"""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status, 
+                       t_seconds/60 t_minutes, IFNULL(t_participants, 0) n_participants,
+                       IFNULL(t_followups, 0) n_followups
+                       FROM app_peer_navigators pn 
+                       LEFT JOIN (SELECT username, COUNT(*) t_participants 
+                                  FROM app_participants WHERE status=1 GROUP BY username) p ON p.username=pn.username
+                       LEFT JOIN (SELECT username, COUNT(*) t_followups
+                                  FROM app_followups WHERE status=1 GROUP BY username) f ON f.username=pn.username
+                       LEFT JOIN (SELECT username, COUNT(*) t_analytics, SUM(duration) t_seconds
+                                  FROM app_analytics GROUP BY username) a ON a.username=pn.username
+                       LEFT JOIN app_peer_uploads up ON pn.upload=up.upload_id {getListWhere(type, id, 'username')}""")
 
-@mlist.route('/followup/list', methods=['GET'])
-def followupList():
+@mlist.route('/participant/list/<type>/<id>/<field>', methods=['GET'])
+def participantList(type, id, field):
 
-    return loadList("""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups fu 
-                       LEFT JOIN app_peer_uploads up ON fu.upload=up.upload_id""")
+    return loadList(f"""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_participants ps 
+                       LEFT JOIN app_peer_uploads up ON ps.upload=up.upload_id {getListWhere(type, id, 'na')}""")
+
+@mlist.route('/followup/list/<type>/<id>/<field>', methods=['GET'])
+def followupList(type, id, field):
+
+    return loadList(f"""SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_followups fu 
+                       LEFT JOIN app_peer_uploads up ON fu.upload=up.upload_id {getListWhere(type, id, 'na')}""")
 
 
 @mlist.route('/analytic/list', methods=['GET'])

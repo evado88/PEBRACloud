@@ -156,6 +156,7 @@ def initializeDb():
           history_hiv_prep_desired_support_other_specify TEXT NULL,
           history_hiv_prep_stop_reason TEXT NULL,
           srh_contraception_interest INTEGER NULL, -- srh contraception
+          srh_contraception_started_evidence TEXT NULL,
           srh_contraception_no_interest_reason TEXT NULL,
           srh_contraception_interest_male_condom BIT NULL, 
           srh_contraception_interest_female_condom BIT NULL, 
@@ -177,11 +178,14 @@ def initializeDb():
           srh_contraception_find_schedule_facility_other TEXT NULL,
           srh_contraception_information_app INTEGER NULL,
           srh_contraception_information_app_sent BIT NULL,
+          srh_contraception_information_app_sent_date TEXT NULL,    
           srh_contraception_learn_methods INTEGER NULL,
           srh_prep_interest INTEGER NULL, -- srh prep
+          srh_prep_started_evidence TEXT NULL,
           srh_prep_no_interest_reason TEXT NULL, 
           srh_prep_information_app INTEGER NULL, 
           srh_prep_information_app_sent BIT NULL, 
+          srh_prep_information_app_sent_date TEXT NULL, 
           srh_prep_find_schedule_facility INTEGER NULL, 
           srh_prep_find_schedule_facility_yes_date TEXT NULL, 
           srh_prep_find_schedule_facility_yes_pn_accompany INTEGER NULL, 
@@ -210,6 +214,7 @@ def initializeDb():
           srh_contraception_started_side_effects TEXT NULL, 
           srh_contraception_started_other TEXT NULL, 
           srh_contraception_interest INTEGER NULL, 
+          srh_contraception_started_evidence TEXT NULL,
           srh_contraception_no_interest_reason INTEGER NULL,
           srh_contraception_interest_male_condom BIT NULL, 
           srh_contraception_interest_female_condom BIT NULL, 
@@ -231,15 +236,18 @@ def initializeDb():
           srh_contraception_find_schedule_facility_other INTEGER NULL,
           srh_contraception_information_app INTEGER NULL,
           srh_contraception_information_app_sent BIT NULL,
+          srh_contraception_information_app_sent_date TEXT NULL,
           srh_contraception_learn_methods INTEGER NULL,
           srh_prep_started INTEGER NULL, -- srh prep
           srh_prep_started_problems INTEGER NULL, 
           srh_prep_started_side_effects TEXT NULL, 
           srh_prep_started_other TEXT NULL, 
-          srh_prep_interest INTEGER NULL, 
+          srh_prep_interest INTEGER NULL,
+          srh_prep_started_evidence TEXT NULL, 
           srh_prep_no_interest_reason TEXT NULL, 
           srh_prep_information_app INTEGER NULL, 
           srh_prep_information_app_sent BIT NULL, 
+          srh_prep_information_app_sent_date TEXT NULL, 
           srh_prep_find_schedule_facility INTEGER NULL, 
           srh_prep_find_schedule_facility_yes_date TEXT NULL, 
           srh_prep_find_schedule_facility_yes_pn_accompany INTEGER NULL, 
@@ -392,7 +400,7 @@ def dropDatabaseTable():
     
          if table == 'all':
              
-             items = ['app_participants', 'app_followups', 'app_peer_navigators', 'app_analytics', 'app_peer_uploads']
+             items = ['app_participants', 'app_followups', 'app_peer_navigators', 'app_analytics', 'app_peer_uploads', 'app_sent_resources' ]
              
              for item in items:
                cur.execute(f"DROP TABLE {item}")

@@ -13,6 +13,8 @@ def getItemId(title, id):
 
     if title == 'user':
         query = "SELECT *, CASE WHEN user_status=1 THEN 'Active' ELSE 'Disabled' END AS u_status FROM app_users WHERE user_id=?"
+    elif title=='sent-resource':
+        query = "SELECT *, CASE WHEN status=1 THEN 'Pending' ELSE 'Processed' END AS p_status FROM app_sent_resources WHERE id=?"
     elif title=='facility':
         query = "SELECT *, CASE WHEN facility_status=1 THEN 'Active' ELSE 'Disabled' END AS f_status FROM app_facilities WHERE facility_id=?"
     elif title=='resource':
@@ -30,7 +32,7 @@ def getItemId(title, id):
     elif title=='log':
         query = "SELECT * FROM app_logs WHERE log_id=?"
     else:
-        return {'succeeded': False, 'items': [], 'message': f"The specified {title} is not valid"}
+        return {'succeeded': False, 'items': [], 'message': f"The specified feature '{title}' is not valid"}
 
     res = cur.execute(query, [id])
 
@@ -165,6 +167,53 @@ def notificationId(id):
    resp.headers['Access-Control-Allow-Origin'] = '*'
 
    return resp
+
+@mupdate.route('/sent-resource/update', methods=['POST'])
+def updateSentResource():
+    
+    user = request.form.get('user')
+    uresource = request.form.get('uresource')
+    uparticipant = request.form.get('uparticipant')
+    status = request.form.get('status')
+    uid = request.form.get('uid')
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw  = dt.datetime.now();
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    #add a new sent resource
+    if int(uid) == 0:
+        query = '''INSERT INTO app_sent_resources(user, resource, participant, created_date, status) 
+                    VALUES (?, ?, ?, ?, ?)'''
+        
+        cur.execute(query, [user, uresource, uparticipant, now, 1])
+
+        uid = cur.lastrowid
+    else:
+         #update the user
+        query = '''UPDATE app_sent_resources SET status=? WHERE id=?'''
+        
+        cur.execute(query, [status, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('sent-resource', uid)
+    else:
+        rs = {'succeeded': False, 'items': None, 'message': f'Unable to update the specified record'}
+        
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
 
 @mupdate.route('/user/update', methods=['POST'])
 def updateUser():

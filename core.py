@@ -8,6 +8,7 @@ import random
 import assist
 import sqlite3
 import datetime as dt
+from time import localtime, strftime
 
 core = Blueprint('core', __name__)
 
@@ -186,10 +187,11 @@ def upload_json():
 
     #process each feature in the json file
     for feature in items:
-        rsFeature = process_json_data(data, feature, username, upload_id)
+        if len(data[feature]) != 0:
+           rsFeature = process_json_data(data, feature, username, upload_id)
         
-        if not rsFeature['succeeded']:
-           break
+           if not rsFeature['succeeded']:
+               break
             
     if success:
 
@@ -290,3 +292,64 @@ def archive_file(folder, username):
         return 'File not found', 400
     assist.move_to_archive(folder, filename)
     return 'Archive successful', 201
+
+@core.route('/list-users', methods=['GET'])
+def list_users():
+    """
+    Returns the username, first and last name of all users who have a backup.
+    """
+    if not assist.check_token(request):
+        print('Auth error')
+        return 'Auth error', 401
+    path = os.path.join(assist.UPLOAD_FOLDER, 'backups')
+    users = []
+    for file in os.listdir(path):
+        filepath = os.path.join(path, file)
+        if os.path.isfile(filepath) and not file.startswith('.'):
+            filename = file.split('.')[0]  # remove .pb extension
+            split = filename.split('_')
+            username = split[0]
+            firstname = split[1]
+            lastname = split[2]
+            last_upload = os.path.getmtime(filepath)
+            last_upload = localtime(last_upload)
+            last_upload = strftime("%Y-%m-%dT%H:%M:%S%z", last_upload)
+            users.append({
+                'username': username,
+                'firstname': firstname,
+                'lastname': lastname,
+                'file': id_generator(),
+                'last_upload': last_upload
+            })
+    resp = Response(json.dumps(users))
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
+
+@core.route('/list-users-web', methods=['GET'])
+def list_users_web():
+    #Returns the username, first and last name of all users who have a backup.
+    path = os.path.join(assist.UPLOAD_FOLDER, 'backups')
+    users = []
+    for file in os.listdir(path):
+        filepath = os.path.join(path, file)
+        if os.path.isfile(filepath) and not file.startswith('.'):
+            filename = file.split('.')[0]  # remove .pb extension
+            split = filename.split('_')
+            username = split[0]
+            firstname = split[1]
+            lastname = split[2]
+            last_upload = os.path.getmtime(filepath)
+            last_upload = localtime(last_upload)
+            last_upload = strftime("%Y-%m-%dT%H:%M:%S%z", last_upload)
+            users.append({
+                'username': username,
+                'firstname': firstname,
+                'lastname': lastname,
+                'last_upload': last_upload,
+                'datafile': id_generator(),
+            })
+    data = {"odata.metadata": "list-users-web", "value":users}
+    resp = Response(json.dumps(users))
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
