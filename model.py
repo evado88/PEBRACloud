@@ -342,34 +342,3 @@ def updateColor():
     resp.headers['Access-Control-Allow-Origin'] = '*'
 
     return resp
-
-@model.route('/color/delete', methods=['POST'])
-def deleteColor():
-
-    uid = request.form.get('uid')
-
-    con = sqlite3.connect(assist.DB_NAME)
-
-    cur = con.cursor()
-
-    #update the color
-    query = '''DELETE FROM app_colors WHERE color_id=?'''
-        
-    cur.execute(query, [uid])
-
-    rows = cur.rowcount
-
-    con.commit()
-    con.close()
-
-    if rows != 0:
-        rs = {'succeeded': True, 'items': None, 'message': f"The specified color with id '{uid}' has been successfully deleted"}
-    else:
-        rs = {'succeeded': False, 'items': None, 'message': f"Unable to delete the specified color with id '{uid}'"}
-        
-    resp = Response(json.dumps(rs))
-
-    resp.headers['Content-Type'] = 'application/json'
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-
-    return resp

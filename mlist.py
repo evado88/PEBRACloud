@@ -123,3 +123,13 @@ def auditList():
 def logList():
 
     return loadList("SELECT * FROM app_logs ORDER BY log_id DESC")
+
+@mlist.route('/phone/list', methods=['GET'])
+def phoneList():
+
+    return loadList("SELECT * FROM app_phones ORDER BY phone_id DESC")
+
+@mlist.route('/handshake/list', methods=['GET'])
+def handshakeList():
+
+    return loadList("SELECT * FROM app_handshakes ORDER BY shake_id DESC")

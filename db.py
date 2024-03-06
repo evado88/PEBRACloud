@@ -44,6 +44,42 @@ def initializeDb():
           user_lastupdateuser TEXT NULL
         );
         """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_phones (
+          phone_id INTEGER PRIMARY KEY,
+          phone_name TEXT NULL,
+          phone_number TEXT NULL,
+          phone_pin TEXT NULL,
+          phone_token TEXT NULL,
+          phone_color TEXT NULL,
+          phone_peer TEXT NULL,
+          phone_status INTEGER NULL,
+          phone_createuser TEXT NULL,
+          phone_createdate TEXT NULL,
+          phone_lastupdatedate TEXT NULL,
+          phone_lastupdateuser TEXT NULL
+        );
+        """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_peer_participants (
+          part_id INTEGER PRIMARY KEY,
+          part_number TEXT NULL,
+          part_peer TEXT NULL,
+          part_createuser TEXT NULL,
+          part_createdate TEXT NULL
+        );
+        """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS app_handshakes (
+          shake_id INTEGER PRIMARY KEY,
+          shake_number TEXT NULL,
+          shake_token TEXT NULL,
+          shake_createdate TEXT NULL
+        );
+        """)
     
     cur.execute("""
         CREATE TABLE IF NOT EXISTS app_logins (
