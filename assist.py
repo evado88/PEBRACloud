@@ -5,8 +5,8 @@ DB_NAME = "twyshe.db"
 
 # default parameters, can be overwritten by command line arguments
 PORT = 80
-UPLOAD_FOLDER = 'C:\\Repo\\Python\\PEBRACloud\\appdata'
-#UPLOAD_FOLDER = '/home/nkoleevans/mysite/twyshe-files'
+#UPLOAD_FOLDER = 'C:\\Repo\\Python\\PEBRACloud\\appdata'
+UPLOAD_FOLDER = '/home/nkoleevans/mysite/twyshe-files'
 
 # fixed parameters
 ALLOWED_EXTENSIONS = {'txt', 'db', 'xlsx'}

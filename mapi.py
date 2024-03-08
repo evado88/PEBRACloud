@@ -3,10 +3,11 @@ from flask import Blueprint, Response, request
 import requests
 import sqlite3
 import assist
+import mupdate
 
-api = Blueprint('api', __name__)
+mapi = Blueprint('mapi', __name__)
 
-@api.route('/login', methods=['POST'])
+@mapi.route('/login', methods=['POST'])
 def loginUser():
 
     username = request.form.get('username')
@@ -47,39 +48,58 @@ def loginUser():
 
 
 
-@api.route('/send-fcm-device-message', methods=['POST'])
+@mapi.route('/send-fcm-device-message', methods=['POST'])
 def sendFcmDeviceMessage():
     url = 'https://fcm.googleapis.com/fcm/send'
 
-    token = request.form.get('token')
+    phone = request.form.get('phone')
     title = request.form.get('title')
     body = request.form.get('body')
 
-    headers = {'Content-type': 'application/json',
-               'Authorization': 'key=AAAAzHFkGzo:APA91bEy37CQFjUFuctbKsA8Z0kjZNuWSgJBLe6JpEafRhwTEjZCxPbvcv8zhUc2yCO1fNjoybTubBE0UGRBkSkIdl7ePrYUcaIYC9Exb9mr-UIsGNlNaps1iJ9E--cOUHNq0tCX-f03'}
+    res = mupdate.getItemId('phone', phone)
 
-    data = {"to": token,
-            "notification":
-               {
-                   "title": title,
-                   "body": body
-             }
-           }
 
-    response = requests.post(url, data=json.dumps(data), headers=headers)
-    # wait for the response. it should not be higher
-    # than keep alive time for TCP connection
+    if not res['succeeded']:
+        # handshake rejected, unkown number
 
-    # render template or redirect to some url:
-    # return redirect("some_url")
-    resp = Response(response)
+        rs = {'succeeded': False, 'items': None,
+              'message': f'Unable to send device notification to unregistered provided number \'{phone}\''}
 
-    resp.headers['Content-Type'] = 'application/json'
-    resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp = Response(json.dumps(rs))
 
-    return response.text
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
 
-@api.route('/send-fcm-topic-message', methods=['POST'])
+        return resp
+    else:
+        deviceId = res['items'][0]['phone_token']
+
+        headers = {'Content-type': 'application/json',
+                  'Authorization': 'key=AAAAzHFkGzo:APA91bEy37CQFjUFuctbKsA8Z0kjZNuWSgJBLe6JpEafRhwTEjZCxPbvcv8zhUc2yCO1fNjoybTubBE0UGRBkSkIdl7ePrYUcaIYC9Exb9mr-UIsGNlNaps1iJ9E--cOUHNq0tCX-f03'}
+
+        data = {"to": deviceId,
+                "notification":
+                {
+                    "title": title,
+                    "body": body
+                }
+            }
+
+
+        response = requests.post(url, data=json.dumps(data), headers=headers)
+        # wait for the response. it should not be higher
+        # than keep alive time for TCP connection
+
+        # render template or redirect to some url:
+        # return redirect("some_url")
+        resp = Response(response)
+
+        resp.headers['Content-Type'] = 'application/json'
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+
+        return response.text
+
+@mapi.route('/send-fcm-topic-message', methods=['POST'])
 def sendFcmTopicMessage():
     url = 'https://fcm.googleapis.com/fcm/send'
 

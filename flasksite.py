@@ -8,7 +8,7 @@ import assist
 
 #link database and api files
 from core import core
-from api import api
+from mapi import mapi
 from db import db
 
 from mlist import mlist
@@ -20,7 +20,7 @@ app = Flask(__name__)
 
 #register blueprints
 app.register_blueprint(core)
-app.register_blueprint(api)
+app.register_blueprint(mapi)
 app.register_blueprint(db)
 
 app.register_blueprint(mlist)
@@ -30,4 +30,4 @@ app.register_blueprint(mupdate)
 #root path
 @app.route("/")
 def hello():
-    return {'app':'Twyshe App Server', 'version': 1}
+    return {'app':'Twyshe App Server', 'version': 3}

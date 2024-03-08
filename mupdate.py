@@ -1002,31 +1002,35 @@ def peerAddPartipant():
     else:
         # check particiant
 
-        res = getItemId('phone', uparticipant)
+        if not res['items'][0]['phone_status'] == 2:
+            rs = {'succeeded': False, 'items': None,
+              'message': f'The provided phone number \'{upeer}\' is not a peer-navigator '}
+        else:
+            res = getItemId('phone', uparticipant)
 
-        if res['succeeded']:
+            if res['succeeded']:
 
-            res = isPeerParticipant(upeer, uparticipant)
+                res = isPeerParticipant(upeer, uparticipant)
 
-            if not res['succeeded']:
+                if not res['succeeded']:
 
-                query = '''INSERT INTO app_peer_participants(part_peer, part_number, part_createuser, part_createdate) 
-                           VALUES (?, ?, ?, ?)'''
+                    query = '''INSERT INTO app_peer_participants(part_peer, part_number, part_createuser, part_createdate) 
+                            VALUES (?, ?, ?, ?)'''
 
-                cur.execute(query, [upeer, uparticipant, uuser, now])
+                    cur.execute(query, [upeer, uparticipant, uuser, now])
 
-                if cur.rowcount != 0:
-                    rs = {'succeeded': True, 'items': None,
-                          'message': f'The peer-navigator \'{upeer}\' and participant \'{uparticipant}\' have been linked successfully'}
+                    if cur.rowcount != 0:
+                        rs = {'succeeded': True, 'items': None,
+                            'message': f'The peer-navigator \'{upeer}\' and participant \'{uparticipant}\' have been linked successfully'}
+                    else:
+                        rs = {'succeeded': False, 'items': None,
+                            'message': f'An error occured when linking peer-navigator \'{upeer}\' and participant \'{uparticipant}\''}
                 else:
                     rs = {'succeeded': False, 'items': None,
-                          'message': f'An error occured when linking peer-navigator \'{upeer}\' and participant \'{uparticipant}\''}
+                        'message': f'The provided peer \'{upeer}\' and participant \'{uparticipant}\' phone numbers are already linked'}
             else:
                 rs = {'succeeded': False, 'items': None,
-                      'message': f'The provided peer \'{upeer}\' and participant \'{uparticipant}\' phone numbers are already linked'}
-        else:
-            rs = {'succeeded': False, 'items': None,
-                  'message': f'The provided participant phone number \'{uparticipant}\' is not registered in the messenger app'}
+                    'message': f'The provided participant phone number \'{uparticipant}\' is not registered in the messenger app'}
 
     con.commit()
     con.close()
@@ -1081,6 +1085,35 @@ def peerRemoveParticipant():
 
     return resp
 
+@mupdate.route('/peer/participant/list', methods=['GET'])
+def peerParticipantsList():
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    query = """SELECT * FROM app_peer_participants"""
+
+    res = cur.execute(query)
+
+    rows = res.fetchall()
+   
+    columns = list(map(lambda x: x[0], cur.description))
+
+    items = assist.getList(rows, columns)
+
+    rs = {'succeeded': True, 'items': items, 'message': None}
+
+    con.commit()
+    con.close()
+
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
 
 @mupdate.route('/peer/list/participant/<peer>', methods=['GET'])
 def peerListParticipant(peer):
@@ -1089,9 +1122,42 @@ def peerListParticipant(peer):
 
     cur = con.cursor()
 
-    query = "SELECT * FROM app_peer_participants WHERE part_peer=?"
+    query = """SELECT * FROM app_peer_participants pn
+               LEFT JOIN app_phones ph  ON pn.part_number=ph.phone_number
+               WHERE part_peer=? ORDER BY phone_name"""
 
     res = cur.execute(query, [peer])
+
+    rows = res.fetchall()
+   
+    columns = list(map(lambda x: x[0], cur.description))
+
+    items = assist.getList(rows, columns)
+
+    rs = {'succeeded': True, 'items': items, 'message': None}
+
+    con.commit()
+    con.close()
+
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
+@mupdate.route('/participant/list/peer/<participant>', methods=['GET'])
+def participantListPeer(participant):
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    query = """SELECT * FROM app_peer_participants pn
+               LEFT JOIN app_phones ph  ON pn.part_peer=ph.phone_number
+               WHERE part_number=?"""
+
+    res = cur.execute(query, [participant])
 
     rows = res.fetchall()
    
@@ -1126,6 +1192,7 @@ def perfromHandshake():
 
     res = getItemId('phone', unumber)
 
+
     if not res['succeeded']:
         # handshake rejected, unkown number
 
@@ -1147,7 +1214,7 @@ def perfromHandshake():
             cur.execute(query, [utoken, now, unumber])
 
             if cur.rowcount != 0:
-                rs = {'succeeded': True, 'items': None,
+                rs = {'succeeded': True, 'items': res['items'],
                       'message': f'Handshake with provided number \'{unumber}\' completed successfully'}
             else:
                 rs = {'succeeded': False, 'items': None,
