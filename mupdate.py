@@ -908,6 +908,49 @@ def registerPhonePeer():
 
     return resp
 
+@mupdate.route('/phone/participant', methods=['POST'])
+def registerPhoneParticipant():
+
+    unumber = request.form.get('unumber')
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw = dt.datetime.now()
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+    res = getItemId('phone', unumber)
+
+    # check phone
+    if not res['succeeded']:
+        # peer rejected, unkown number
+
+        rs = {'succeeded': False, 'items': None,
+              'message': f'The provided phone number \'{unumber}\' is not registered in the messenger app'}
+    else:
+        # record this handshake
+        query = '''UPDATE app_phones SET phone_status=?, phone_lastupdatedate=? WHERE phone_number=?'''
+
+        cur.execute(query, [3, now, unumber])
+
+        if cur.rowcount != 0:
+            rs = {'succeeded': True, 'items': None,
+                    'message': f'Registration for provided number \'{unumber}\' as a participant has completed successfully'}
+        else:
+            rs = {'succeeded': False, 'items': None,
+                    'message': f'An error occured when registering \'{unumber}\' as participant'}
+
+    con.commit()
+    con.close()
+
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
 
 @mupdate.route('/phone/unpeer', methods=['POST'])
 def unregisterPhonePeer():
