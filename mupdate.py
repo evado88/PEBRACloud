@@ -33,7 +33,13 @@ def getItemId(title, id):
     elif title == 'log':
         query = "SELECT * FROM app_logs WHERE log_id=?"
     elif title == 'phone':
-        query = "SELECT *, CASE WHEN phone_status=1 THEN 'Active' ELSE 'Disabled' END AS c_status FROM app_phones WHERE phone_number=?"
+        query = """SELECT *, CASE 
+                    WHEN phone_status=1 THEN 'Public' 
+                    WHEN phone_status=2 THEN 'Peer Navigator'
+                    WHEN phone_status=3 THEN 'Participant'
+                    ELSE 'Unknown' END AS p_status
+                    FROM app_phones WHERE phone_number=?"""
+        
     elif title == 'peer-navigator-id':
         query = "SELECT *, CASE WHEN status=1 THEN 'Active' ELSE 'Disabled' END AS p_status FROM app_peer_navigators WHERE id=?"
     elif title == 'peer-navigator-username':
@@ -300,6 +306,45 @@ def updateUser():
 
     if rows != 0:
         rs = getItemId('user', uid)
+    else:
+        rs = {'succeeded': False, 'items': None,
+              'message': f'Unable to update the specified record'}
+
+    resp = Response(json.dumps(rs))
+
+    resp.headers['Content-Type'] = 'application/json'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
+
+@mupdate.route('/phone/update', methods=['POST'])
+def updatePhone():
+
+    ustatus = request.form.get('ustatus')
+    uid = request.form.get('uid')
+    user = request.form.get('user')
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    nw = dt.datetime.now()
+    now = nw.strftime('%Y-%m-%d %H:%M:%S')
+
+
+    # update the phone
+    query = '''UPDATE app_phones SET phone_status=?, 
+               phone_lastupdatedate=?, phone_lastupdateuser=? WHERE phone_number=?'''
+
+    cur.execute(query, [ustatus, now, user, uid])
+
+    rows = cur.rowcount
+
+    con.commit()
+    con.close()
+
+    if rows != 0:
+        rs = getItemId('phone', uid)
     else:
         rs = {'succeeded': False, 'items': None,
               'message': f'Unable to update the specified record'}
@@ -887,7 +932,7 @@ def registerPhonePeer():
 
             query = '''UPDATE app_phones SET phone_peer=?, phone_status=?, phone_lastupdatedate=? WHERE phone_number=?'''
 
-            cur.execute(query, [upeer, 2, now, unumber])
+            cur.execute(query, [upeer, 3, now, unumber])
 
             if cur.rowcount != 0:
                 rs = {'succeeded': True, 'items': None,
@@ -1285,6 +1330,7 @@ def registerPhone():
     upin = request.form.get('upin')
     utoken = request.form.get('utoken')
     ucolor = request.form.get('ucolor')
+    uemail = request.form.get('uemail')
 
     con = sqlite3.connect(assist.DB_NAME)
 
@@ -1299,23 +1345,23 @@ def registerPhone():
 
         # add new phone
         query = '''INSERT INTO app_phones(phone_name, phone_number, phone_pin, 
-                   phone_token, phone_color, phone_status,
+                   phone_token, phone_color, phone_status, phone_email,
                    phone_createuser, phone_createdate, phone_lastupdatedate, phone_lastupdateuser) 
                    VALUES (?, ?, ?, 
-                           ?, ?, ?, 
+                           ?, ?, ?,?,
                            ?, ?, ?, ?)'''
         cur.execute(query, [uname, unumber, upin, utoken,
-                    ucolor, 1, unumber, now, now, unumber])
+                    ucolor, 1, uemail, unumber, now, now, unumber])
 
         msg = f'The provided number \'{unumber}\' does not exist. Registering new one'
 
     else:
         # update the existing phone
-        query = '''UPDATE app_phones SET phone_name=?, phone_pin=?, phone_token=?, phone_color=?, phone_lastupdatedate=?,
+        query = '''UPDATE app_phones SET phone_name=?, phone_pin=?, phone_token=?, phone_color=?, phone_email=?, phone_lastupdatedate=?,
                    phone_lastupdateuser=? WHERE phone_number=?'''
 
         cur.execute(query, [uname, upin, utoken,
-                    ucolor, now, unumber, unumber])
+                    ucolor, uemail, now, unumber, unumber])
 
         msg = f'The provided number \'{unumber}\' already exists. Updating the existing one'
 

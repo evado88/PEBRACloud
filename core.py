@@ -9,6 +9,7 @@ import assist
 import sqlite3
 import datetime as dt
 from time import localtime, strftime
+import pandas as pd
 
 core = Blueprint('core', __name__)
 
@@ -243,6 +244,32 @@ def download(folder, username, random):
     # return "sending path:" + path +  ", filename:" + filename, 401
     return send_from_directory(path, filename)
 
+
+@core.route('/downloadJson', methods=['POST'])
+def downloadJson():
+
+    # Downloads the file with matching username from the given folder.
+    #path = os.path.join(assist.UPLOAD_FOLDER, folder)
+
+    #filename = ''
+    # print("sending path:" + path +  ", filename:" + filename)
+    # return "sending path:" + path +  ", filename:" + filename, 401
+    #return send_from_directory(path, filename)
+
+
+    jsonData = request.form.get('ujson')
+
+    df = pd.read_json(jsonData)
+    
+    filename = request.form.get('ufilename')
+
+    resp = Response(df.to_csv())
+
+    resp.headers["Content-Disposition"] = f"attachment; filename={filename}.csv"
+    resp.headers["Content-Type"] = "text/csv"
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+
+    return resp
 
 @core.route('/exists/<folder>/<username>', methods=['GET'])
 def exists(folder, username):

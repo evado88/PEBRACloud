@@ -454,6 +454,36 @@ def dropDatabaseTable():
     return resp
 
 
+@db.route('/run-db-query', methods=['POST'])
+def runDbQuery():
+
+    query = request.form.get ('query')
+
+    con = sqlite3.connect(assist.DB_NAME)
+
+    cur = con.cursor()
+
+    res = cur.execute(f"{query}")
+
+    items = []
+
+    if query.lower().find('select') != -1:
+      rows = res.fetchall()
+      columns = list(map(lambda x: x[0], cur.description))
+      items = assist.getList(rows, columns)
+    else:
+      con.commit()
+  
+    con.close()
+
+    rs = {'succeeded': True, 'items': items,
+        'message': f"The specified query '{query}' has been run"}
+
+    resp = Response(json.dumps(rs))
+    resp.headers['Content-Type'] = 'application/json'
+
+    return resp
+
 
 @db.route('/initialize-data', methods=['POST'])
 def initializeData():
